@@ -26,4 +26,15 @@ defmodule Ammo.Album do
     |> validate_required(@fields)
     |> put_assoc(:photos, attrs[:photos] || []) # FIXME
   end
+
+  ##############################################################################
+
+  def as_json(id) do
+    query =
+      from a in Album,
+      where: a.id == ^id,
+      preload: [:photos]
+
+    album = Repo.one(query)
+  end
 end

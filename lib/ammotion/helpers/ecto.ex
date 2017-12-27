@@ -2,6 +2,7 @@ defmodule Ammo.Helpers.Ecto do
   defmacro __using__(opts \\ []) do
     fields = opts[:fields]
     quote do
+      import Ecto.Query
       import Ecto.Changeset
       @type t :: Ecto.Schema.t
 
