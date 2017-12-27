@@ -56,7 +56,8 @@ config :ammotion, Ammo.Repo,
   database: "ammotion_dev",
   hostname: "localhost",
   pool_size: 10,
-  extensions: [{Geo.PostGIS.Extension, library: Geo}]
+  extensions: [{Geo.PostGIS.Extension, library: Geo}],
+  types: Ammo.PostgrexTypes
 
 System.put_env("FACEBOOK_APP_ID", "")
 System.put_env("FACEBOOK_APP_SECRET", "")

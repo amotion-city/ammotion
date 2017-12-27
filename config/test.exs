@@ -17,4 +17,5 @@ config :ammotion, Ammo.Repo,
   database: "ammotion_test",
   hostname: "localhost",
   extensions: [{Geo.PostGIS.Extension, library: Geo}],
+  types: Ammo.PostgrexTypes,
   pool: Ecto.Adapters.SQL.Sandbox

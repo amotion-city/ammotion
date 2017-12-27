@@ -42,9 +42,11 @@ defmodule Ammo.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
 
+      {:jason, "~> 1.0.0-rc.1"},
       {:exexif, "~> 0.0"},
       {:csv, "~> 2.1"},
       {:geo, "~> 2.0"},
+      {:geo_postgis, "~> 1.0"},
 
       {:ueberauth, "~> 0.5"},
       {:oauth2, "~> 0.8", override: true},

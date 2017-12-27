@@ -11,6 +11,7 @@ defmodule Ammo.Photo do
   schema "photos" do
     field :path, :string
     field :sha, :string
+    field :taken_at, :naive_datetime
     field :latlon, Geo.Point
 
     belongs_to :user, User
@@ -25,7 +26,7 @@ defmodule Ammo.Photo do
     |> validate_required(~w|path|a)
     |> validate_path()
     |> revalidate_sha()
-    |> revalidate_latlon()
+    |> revalidate_gps()
     |> unique_constraint(:sha, name: :photos_sha_index)
   end
 
@@ -82,24 +83,65 @@ defmodule Ammo.Photo do
     |> Base.encode16()
   end
 
-  # defp revalidate_sha(%Ecto.Changeset{errors: errors, changes: %Photo{sha: sha}} = changes)
+  # defp revalidate_sha(%Ecto.Changeset{changes: %Photo{sha: sha}} = changes)
   #   when is_binary(sha), do: changes
 
-  defp revalidate_sha(%Ecto.Changeset{errors: errors, changes: photo} = changes),
+  defp revalidate_sha(%Ecto.Changeset{changes: photo} = changes),
     do: change(changes, %{sha: sha(photo[:path])})
 
-  defp latlon(path) do
-    with {:ok, info} <- Exexif.exif_from_jpeg_file(path),
-         {lat, lon} when not is_nil(lat) and not is_nil(lon) <- {info.gps.gps_latitude, info.gps.gps_longitude} do
-      %Geo.Point{coordinates: {lat, lon}} # , srid: 4326} FIXME ??
+  defp latlon_ref_to_int(%Exexif.Data.Gps{gps_latitude_ref: "S", gps_longitude_ref: "W"}), do: [-1, -1]
+  defp latlon_ref_to_int(%Exexif.Data.Gps{gps_latitude_ref: "S"}), do: [-1, 1]
+  defp latlon_ref_to_int(%Exexif.Data.Gps{gps_longitude_ref: "W"}), do: [1, -1]
+  defp latlon_ref_to_int(%Exexif.Data.Gps{}), do: [1, 1]
+
+  defp lat_or_lon([g, m, s]), do: g + m / 60.0 + s / 3600.0
+  defp lat_or_lon(_), do: nil
+  defp latlon(%Exexif.Data.Gps{gps_latitude: [_, _, _] = lat, gps_longitude: [_, _, _] = lon} = gps) do
+    [lat, lon]
+    |> Enum.map(&lat_or_lon/1)
+    |> Enum.zip(latlon_ref_to_int(gps))
+    |> Enum.map(fn {ll, ref} -> ll * ref end)
+    |> List.to_tuple()
+  end
+  defp latlon(_gps), do: nil
+
+  defp ts(%Exexif.Data.Gps{gps_date_stamp: <<date :: binary>>, gps_time_stamp: [_, _, _] = time}) do
+    date =
+      date
+      |> String.split(":")
+      |> Enum.map(&String.to_integer/1)
+
+    [date, time]
+    |> Enum.map(&List.to_tuple/1)
+    |> List.to_tuple()
+    |> NaiveDateTime.from_erl!()
+  end
+  defp ts(_gps), do: nil
+
+  defp gps(path) do
+    with {:ok, info} <- Exexif.exif_from_jpeg_file(path) do
+      case {ts(info.gps), latlon(info.gps)} do
+        {nil, nil} ->
+          %{}
+        {nil, latlon} ->
+          %{latlon: %Geo.Point{coordinates: latlon, srid: 4326}}
+        {taken_at, nil} ->
+          %{taken_at: taken_at}
+        {taken_at, latlon} ->
+          %{
+            taken_at: taken_at,
+            latlon: %Geo.Point{coordinates: latlon, srid: 4326} # FIXME WTF is srid ??
+          }
+      end
     else
-      _ -> nil
+      _ -> %{}
     end
   end
 
-  # defp revalidate_latlon(%Ecto.Changeset{errors: errors, changes: %Photo{latlon: latlon}} = changes)
-  #   when not is_nil(latlon), do: changes
+  # defp revalidate_gps(%Ecto.Changeset{changes: %Photo{taken_at: taken_at, latlon: latlon}} = changes)
+  #   when not is_nil(latlon) and not is_nil(taken_at), do: changes
 
-  defp revalidate_latlon(%Ecto.Changeset{errors: errors, changes: photo} = changes),
-    do: change(changes, %{latlon: latlon(photo[:path])})
+  defp revalidate_gps(%Ecto.Changeset{changes: photo} = changes) do
+    change(changes, gps(photo[:path]))
+  end
 end

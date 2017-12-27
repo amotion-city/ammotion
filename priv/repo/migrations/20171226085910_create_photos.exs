@@ -7,6 +7,7 @@ defmodule Ammo.Repo.Migrations.CreatePhotos do
       add :path, :string
       add :sha, :string
       add :latlon, :geometry
+      add :taken_at, :utc_datetime
 
       add :user_id, references(:users, on_delete: :nothing, type: :binary_id)
 
