@@ -1,12 +1,11 @@
 defmodule Ammo.Photo do
-  use Ecto.Schema
-  import Ecto.Changeset
-  alias Ammo.Photo
+  alias Ammo.{Photo,Album,PhotoInAlbum,User}
 
+  @fields ~w|path sha latlon user_id|a
+
+  use Ecto.Schema
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
-  @type t :: Ecto.Schema.t
-  @fields ~w|path sha latlon|a
 
   schema "photos" do
     field :path, :string
@@ -15,41 +14,23 @@ defmodule Ammo.Photo do
     field :latlon, Geo.Point
 
     belongs_to :user, User
+    has_many :photos_in_albums, PhotoInAlbum
+    has_many :albums, through: [:photos_in_albums, :Album]
 
     timestamps()
   end
 
+  use Ammo.Helpers.Ecto, fields: @fields
+
   @doc false
   def changeset(%Photo{} = photo, attrs) do
     photo
-    |> cast(attrs, ~w|path sha latlon|a)
-    |> validate_required(~w|path|a)
+    |> cast(attrs, @fields)
+    |> validate_required(~w|path user_id|a)
     |> validate_path()
     |> revalidate_sha()
     |> revalidate_gps()
     |> unique_constraint(:sha, name: :photos_sha_index)
-  end
-
-  @doc "Returns a changeset"
-  def new?(attrs) when is_list(attrs) do
-    attrs
-    |> Keyword.take(@fields)
-    |> Enum.into(%{})
-    |> new?()
-  end
-  def new?(attrs) when is_map(attrs),
-    do: Photo.changeset(%__MODULE__{}, attrs)
-
-  @doc "Returns an in-memory object"
-  def new(attrs), do: attrs |> new?() |> apply_changes()
-  @doc "Persists an object"
-  def new!(attrs) do
-    case attrs |> new?() |> Ammo.Repo.insert() do
-      {:ok, %Photo{} = photo} ->
-        photo
-      {:error, %{errors: errors}} ->
-        {:error, errors |> Enum.map(fn {k, {msg, _}} -> "#{k}: #{msg}" end)}
-    end
   end
 
   ##############################################################################
@@ -66,10 +47,10 @@ defmodule Ammo.Photo do
     case {File.exists?(photo[:path]), File.dir?(photo[:path])} do
       {true, false} ->
         changes
-      {true, false} ->
+      {true, true} ->
         new_errors = [{:path, {"Directory given.", [validation: :is_directory]}}]
         %{changes | changes: photo, errors: new_errors ++ errors, valid?: false}
-      _ ->
+      {false, _} ->
         new_errors = [{:path, {"Bad file path given.", [validation: :invalid_path]}}]
         %{changes | changes: photo, errors: new_errors ++ errors, valid?: false}
     end

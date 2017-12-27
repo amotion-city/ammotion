@@ -1,7 +1,7 @@
 defmodule Ammo.Album do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Ammo.Album
+  alias Ammo.{Photo,Album,PhotoInAlbum}
 
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -10,6 +10,8 @@ defmodule Ammo.Album do
     field :name, :string
 
     belongs_to :user, User
+    has_many :photos_in_albums, PhotoInAlbum
+    has_many :albums, through: [:photos_in_albums, :Album]
 
     timestamps()
   end
@@ -17,7 +19,7 @@ defmodule Ammo.Album do
   @doc false
   def changeset(%Album{} = album, attrs) do
     album
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, ~w|name user_id|a)
+    |> validate_required(~w|name user_id|a)
   end
 end
