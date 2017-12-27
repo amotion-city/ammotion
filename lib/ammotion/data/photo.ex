@@ -1,7 +1,7 @@
 defmodule Ammo.Photo do
   alias Ammo.{Photo,Album,PhotoInAlbum,User,Repo}
 
-  @fields ~w|path sha latlon user_id|a
+  @fields ~w|path sha latlon taken_at user_id|a
 
   use Ecto.Schema
   @primary_key {:id, :binary_id, autogenerate: true}

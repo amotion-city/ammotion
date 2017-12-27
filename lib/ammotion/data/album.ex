@@ -33,8 +33,21 @@ defmodule Ammo.Album do
     query =
       from a in Album,
       where: a.id == ^id,
-      preload: [:photos]
+      preload: [:user, photos: :user]
 
-    album = Repo.one(query)
+    with album <- Repo.one(query) do
+      %{
+        name: album.name,
+        owner: album.user.name,
+        photos:
+          Enum.map(album.photos, fn photo ->
+            %{
+              coords: photo.latlon.coordinates,
+              taken_at: photo.taken_at,
+              author: photo.user.name
+            }
+          end)
+      }
+    end
   end
 end

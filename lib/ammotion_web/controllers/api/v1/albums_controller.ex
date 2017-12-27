@@ -6,14 +6,14 @@ defmodule AmmoWeb.Api.V1.AlbumsController do
 
   require Logger
 
-  alias AmmoWeb.Endpoint
+  # alias AmmoWeb.Endpoint
   alias Ammo.{Repo,Photo,Album}
 
   def index(conn, _params) do
     json conn, %{albums: Repo.all(from a in Album, select: a.id)}
   end
 
-  def show(conn, %{"id" => id} = params) do
+  def show(conn, %{"id" => id} = _params) do
     json conn, %{album: Album.as_json(id)}
   end
 end

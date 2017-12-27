@@ -24,4 +24,14 @@ defmodule Ammo.Photo.Test do
     [album] = Repo.all from a in Album, preload: [:photos]
     assert Repo.all(Photo) == album.photos
   end
+
+  test "Album.as_json/1", %{user: user} do
+    photos = Photo.suck("images", user.id)
+    Album.new!(name: "My Album", user_id: user.id, photos: photos)
+    [album] = Repo.all from a in Album, preload: [:photos]
+
+    assert %{photos: photos} = Album.as_json(album.id)
+    assert Enum.count(photos) == 7
+    assert photos |> Enum.map(& &1.author) |> Enum.uniq == ["Aleksei"]
+  end
 end
