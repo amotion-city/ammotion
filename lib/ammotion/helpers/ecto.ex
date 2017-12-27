@@ -20,7 +20,7 @@ defmodule Ammo.Helpers.Ecto do
       @doc "Persists an object"
       def new!(attrs) do
         case attrs |> new?() |> Ammo.Repo.insert() do
-          {:ok, photo} -> # %__MODULE__{} = photo} ->
+          {:ok, %__MODULE__{} = photo} ->
             photo
           {:error, %{errors: errors}} ->
             {:error, errors |> Enum.map(fn {k, {msg, _}} -> "#{k}: #{msg}" end)}

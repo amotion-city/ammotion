@@ -1,5 +1,5 @@
 defmodule Ammo.Photo do
-  alias Ammo.{Photo,Album,PhotoInAlbum,User}
+  alias Ammo.{Photo,Album,PhotoInAlbum,User,Repo}
 
   @fields ~w|path sha latlon user_id|a
 
@@ -14,8 +14,7 @@ defmodule Ammo.Photo do
     field :latlon, Geo.Point
 
     belongs_to :user, User
-    has_many :photos_in_albums, PhotoInAlbum
-    has_many :albums, through: [:photos_in_albums, :Album]
+    many_to_many :albums, Album, join_through: PhotoInAlbum
 
     timestamps()
   end
@@ -25,12 +24,14 @@ defmodule Ammo.Photo do
   @doc false
   def changeset(%Photo{} = photo, attrs) do
     photo
+    |> Repo.preload(:albums)
     |> cast(attrs, @fields)
     |> validate_required(~w|path user_id|a)
     |> validate_path()
     |> revalidate_sha()
     |> revalidate_gps()
     |> unique_constraint(:sha, name: :photos_sha_index)
+    |> put_assoc(:albums, attrs[:albums] || []) # FIXME
   end
 
   ##############################################################################

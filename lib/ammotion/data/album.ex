@@ -1,25 +1,29 @@
 defmodule Ammo.Album do
+  alias Ammo.{Photo,Album,PhotoInAlbum,User,Repo}
+
+  @fields ~w|name user_id|a
+
   use Ecto.Schema
-  import Ecto.Changeset
-  alias Ammo.{Photo,Album,PhotoInAlbum}
-
-
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
   schema "albums" do
     field :name, :string
 
     belongs_to :user, User
-    has_many :photos_in_albums, PhotoInAlbum
-    has_many :albums, through: [:photos_in_albums, :Album]
+    many_to_many :photos, Photo, join_through: PhotoInAlbum
 
     timestamps()
   end
 
+  use Ammo.Helpers.Ecto, fields: @fields
+
   @doc false
   def changeset(%Album{} = album, attrs) do
     album
-    |> cast(attrs, ~w|name user_id|a)
-    |> validate_required(~w|name user_id|a)
+    |> Repo.preload(:photos)
+    |> cast(attrs, @fields)
+    |> validate_required(@fields)
+    |> put_assoc(:photos, attrs[:photos] || []) # FIXME
   end
 end

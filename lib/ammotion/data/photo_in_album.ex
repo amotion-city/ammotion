@@ -17,8 +17,6 @@ defmodule Ammo.PhotoInAlbum do
   @doc false
   def changeset(%PhotoInAlbum{} = photo_in_album, attrs) do
     photo_in_album
-    |> cast(attrs, ~w|photo_id album_id|a)
-    |> validate_required(~w|photo_id album_id|a)
-#     |> unique_constraint(:sha, name: :photos_sha_index)
+    |> cast(attrs, [])
   end
 end
