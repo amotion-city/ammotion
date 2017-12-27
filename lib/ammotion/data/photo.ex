@@ -19,7 +19,7 @@ defmodule Ammo.Photo do
     timestamps()
   end
 
-  use Ammo.Helpers.Ecto, fields: @fields
+  use Ammo.Helpers.Ecto, fields: [:albums | @fields]
 
   @doc false
   def changeset(%Photo{} = photo, attrs) do
@@ -36,9 +36,9 @@ defmodule Ammo.Photo do
 
   ##############################################################################
 
-  def suck(path) do
+  def suck(path, user_id) do
     with {:ok, files} <- File.ls(path) do
-      Enum.map(files, &Photo.new!(%{path: &1}))
+      Enum.map(files, &Photo.new!(%{path: Path.join(path, &1), user_id: user_id}))
     end
   end
 

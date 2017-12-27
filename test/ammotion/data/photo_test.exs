@@ -1,17 +1,27 @@
 defmodule Ammo.Photo.Test do
   use ExUnit.Case, async: true
+  use Ammo.DataCase
+  alias Ammo.{Repo,Photo,Album}
+
   doctest Ammo.Photo
 
-  use Ammo.DataCase
-
-  setup do
+  setup _context do
     Ecto.Adapters.SQL.Sandbox.mode(Ammo.Repo, {:shared, self()})
+    [user: Ammo.User.new!(name: "Aleksei", email: "am@amotion.city")]
   end
 
-  test "new!/1" do
-    IO.inspect File.cwd, label: "★"
-    photo = Ammo.Photo.new!(path: "images/1.jpg")
+  test "Photo.new!/1", %{user: user} do
+    Photo.new!(path: "images/1.jpg", user_id: user.id)
 
-    assert Enum.count(Ammo.Photo.all()) == 1
+    assert Enum.count(Repo.all(Photo)) == 1
+  end
+
+  test "Album.new!/1", %{user: user} do
+    photos = Photo.suck("images", user.id)
+    assert Enum.count(Repo.all(Photo)) == 7
+
+    Album.new!(name: "My Album", user_id: user.id, photos: photos)
+    [album] = Repo.all from a in Album, preload: [:photos]
+    assert Repo.all(Photo) == album.photos
   end
 end

@@ -16,7 +16,7 @@ defmodule Ammo.Album do
     timestamps()
   end
 
-  use Ammo.Helpers.Ecto, fields: @fields
+  use Ammo.Helpers.Ecto, fields: [:photos | @fields]
 
   @doc false
   def changeset(%Album{} = album, attrs) do
