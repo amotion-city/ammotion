@@ -1,14 +1,18 @@
 defmodule Ammo.Photo do
   alias Ammo.{Photo,Album,PhotoInAlbum,User,Repo}
 
-  @fields ~w|path sha latlon taken_at user_id|a
+  @fields ~w|path image sha latlon taken_at user_id|a
 
   use Ecto.Schema
+  use Arc.Ecto.Schema
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
   schema "photos" do
     field :path, :string
+
+    field :image, Ammo.PhotoUploader.Type
+
     field :sha, :string
     field :taken_at, :naive_datetime
     field :latlon, Geo.Point
@@ -22,15 +26,15 @@ defmodule Ammo.Photo do
   use Ammo.Helpers.Ecto, fields: [:albums | @fields]
 
   @doc false
-  def changeset(%Photo{} = photo, attrs) do
+  def changeset(%Photo{} = photo, attrs \\ %{}) do
     photo
     |> Repo.preload(:albums)
     |> cast(attrs, @fields)
-    |> validate_required(~w|path user_id|a)
+    |> cast_attachments(attrs, [:image])
+    # |> validate_required(~w|user_id|a)
     |> validate_path()
     |> revalidate_sha()
     |> revalidate_gps()
-    |> unique_constraint(:sha, name: :photos_sha_index)
     |> put_assoc(:albums, attrs[:albums] || []) # FIXME
   end
 
@@ -45,18 +49,23 @@ defmodule Ammo.Photo do
   ##############################################################################
 
   defp validate_path(%Ecto.Changeset{errors: errors, changes: photo} = changes) do
-    case {File.exists?(photo[:path]), File.dir?(photo[:path])} do
-      {true, false} ->
-        changes
-      {true, true} ->
-        new_errors = [{:path, {"Directory given.", [validation: :is_directory]}}]
-        %{changes | changes: photo, errors: new_errors ++ errors, valid?: false}
-      {false, _} ->
-        new_errors = [{:path, {"Bad file path given.", [validation: :invalid_path]}}]
-        %{changes | changes: photo, errors: new_errors ++ errors, valid?: false}
+    case photo[:path] do
+      nil -> changes
+      path when is_binary(path) ->
+        case {File.exists?(path), File.dir?(path)} do
+          {true, false} ->
+            changes
+          {true, true} ->
+            new_errors = [{:path, {"Directory given.", [validation: :is_directory]}}]
+            %{changes | changes: photo, errors: new_errors ++ errors, valid?: false}
+          {false, _} ->
+            new_errors = [{:path, {"Bad file path given.", [validation: :invalid_path]}}]
+            %{changes | changes: photo, errors: new_errors ++ errors, valid?: false}
+        end
     end
   end
 
+  defp sha(nil), do: nil
   defp sha(path) do
     path
     |> File.stream!([], 2048)
@@ -65,11 +74,14 @@ defmodule Ammo.Photo do
     |> Base.encode16()
   end
 
-  # defp revalidate_sha(%Ecto.Changeset{changes: %Photo{sha: sha}} = changes)
-  #   when is_binary(sha), do: changes
+  defp revalidate_sha(%Ecto.Changeset{changes: %Photo{sha: nil}} = changes),
+    do: changes
 
-  defp revalidate_sha(%Ecto.Changeset{changes: photo} = changes),
-    do: change(changes, %{sha: sha(photo[:path])})
+  defp revalidate_sha(%Ecto.Changeset{changes: photo} = changes) do
+    changes
+    |> change(%{sha: sha(photo[:path])})
+    |> unique_constraint(:sha, name: :photos_sha_index)
+  end
 
   defp latlon_ref_to_int(%Exexif.Data.Gps{gps_latitude_ref: "S", gps_longitude_ref: "W"}), do: [-1, -1]
   defp latlon_ref_to_int(%Exexif.Data.Gps{gps_latitude_ref: "S"}), do: [-1, 1]
@@ -100,6 +112,7 @@ defmodule Ammo.Photo do
   end
   defp ts(_gps), do: nil
 
+  defp gps(nil), do: nil
   defp gps(path) do
     with {:ok, info} <- Exexif.exif_from_jpeg_file(path) do
       case {ts(info.gps), latlon(info.gps)} do
@@ -124,6 +137,9 @@ defmodule Ammo.Photo do
   #   when not is_nil(latlon) and not is_nil(taken_at), do: changes
 
   defp revalidate_gps(%Ecto.Changeset{changes: photo} = changes) do
-    change(changes, gps(photo[:path]))
+    case gps(photo[:path]) do
+      gps when is_map(gps) -> change(changes, gps)
+      _ -> changes
+    end
   end
 end

@@ -19,7 +19,7 @@ defmodule Ammo.Album do
   use Ammo.Helpers.Ecto, fields: [:photos | @fields]
 
   @doc false
-  def changeset(%Album{} = album, attrs) do
+  def changeset(%Album{} = album, attrs \\ %{}) do
     album
     |> Repo.preload(:photos)
     |> cast(attrs, @fields)

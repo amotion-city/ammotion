@@ -1,7 +1,7 @@
 defmodule Ammo.UserAccount do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Ammo.UserAccount
+  alias Ammo.{User,UserAccount}
 
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -15,7 +15,7 @@ defmodule Ammo.UserAccount do
   end
 
   @doc false
-  def changeset(%UserAccount{} = user_account, attrs) do
+  def changeset(%UserAccount{} = user_account, attrs \\ %{}) do
     user_account
     |> cast(attrs, [:type])
     |> validate_required([:type])

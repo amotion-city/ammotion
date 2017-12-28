@@ -1,0 +1,5 @@
+<h4><%= link "Upload new image", to: photo_path(@conn, :new) %></h4>
+
+<%= for image <- @images do %>
+  <img src="<%= Ammo.PhotoUploader.url({image.image, image})%>"><br>
+<% end %>
