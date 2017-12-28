@@ -13,7 +13,9 @@ defmodule Ammo.Photo.Test do
   end
 
   test "Photo.new!/1", %{user: user} do
-    Photo.new!(path: "images/1.jpg", user_id: user.id)
+    Photo.new!(
+      image: %Plug.Upload{filename: "1.jpg", path: "images/1.jpg"},
+      user_id: user.id)
 
     assert Enum.count(Repo.all(Photo)) == 1
   end

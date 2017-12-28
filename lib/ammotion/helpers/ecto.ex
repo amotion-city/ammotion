@@ -6,6 +6,9 @@ defmodule Ammo.Helpers.Ecto do
       import Ecto.Changeset
       @type t :: Ecto.Schema.t
 
+      def scaffold!(%__MODULE__{}), do: %__MODULE__{}
+      def fix_attrs!(attrs), do: attrs
+
       @doc "Returns a changeset"
       def new?(attrs) when is_list(attrs) do
         attrs
@@ -13,8 +16,11 @@ defmodule Ammo.Helpers.Ecto do
         |> Enum.into(%{})
         |> new?()
       end
-      def new?(attrs) when is_map(attrs),
-        do: changeset(%__MODULE__{}, attrs)
+      def new?(attrs) when is_map(attrs) do
+        %__MODULE__{}
+        |> scaffold!()
+        |> changeset(fix_attrs!(attrs))
+      end
 
       @doc "Returns an in-memory object"
       def new(attrs), do: attrs |> new?() |> apply_changes()
@@ -27,6 +33,8 @@ defmodule Ammo.Helpers.Ecto do
             {:error, errors |> Enum.map(fn {k, {msg, _}} -> "#{k}: #{msg}" end)}
         end
       end
+
+      defoverridable [scaffold!: 1, fix_attrs!: 1]
     end
   end
 end
