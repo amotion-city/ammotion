@@ -19,7 +19,7 @@ defmodule Ammo.Album do
   use Ammo.Helpers.Ecto, fields: [:photos | @fields]
 
   @doc false
-  def changeset(%Album{} = album, attrs) do
+  def changeset(%Album{} = album, attrs \\ %{}) do
     album
     |> Repo.preload(:photos)
     |> cast(attrs, @fields)
@@ -41,7 +41,11 @@ defmodule Ammo.Album do
         owner: album.user.name,
         photos:
           Enum.map(album.photos, fn photo ->
-            {lat, lon} = photo.latlon.coordinates
+            {lat, lon} =
+              case photo.latlon do
+                nil -> {nil, nil}
+                latlon -> latlon.coordinates
+              end
             %{
               coords: %{lat: lat, lon: lon},
               taken_at: photo.taken_at,

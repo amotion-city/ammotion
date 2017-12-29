@@ -18,7 +18,7 @@ defmodule Ammo.User do
   use Ammo.Helpers.Ecto, fields: @fields
 
   @doc false
-  def changeset(%User{} = user, attrs) do
+  def changeset(%User{} = user, attrs \\ %{}) do
     user
     |> cast(attrs, @fields)
     |> validate_required(@fields)

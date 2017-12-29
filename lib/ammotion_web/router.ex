@@ -48,12 +48,15 @@ defmodule AmmoWeb.Router do
     pipe_through :heartbeat
 
     get "/", PageController, :heartbeat
-  end
+   end
 
   ##############################################################################
 
   scope "/", AmmoWeb do
     pipe_through :browser # Use the default browser stack
+
+    resources "/photos", PhotoController do
+    end
 
     get "/", PageController, :index
   end

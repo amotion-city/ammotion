@@ -20,7 +20,7 @@ defmodule Ammo.Mixfile do
   def application do
     [
       mod: {Ammo.Application, []},
-      extra_applications: [:logger, :runtime_tools, :ueberauth]
+      extra_applications: [:logger, :runtime_tools, :ueberauth, :arc_ecto]
     ]
   end
 
@@ -44,9 +44,11 @@ defmodule Ammo.Mixfile do
 
       {:jason, "~> 1.0.0-rc.1"},
       {:exexif, "~> 0.0"},
-      {:csv, "~> 2.1"},
       {:geo, "~> 2.0"},
       {:geo_postgis, "~> 1.0"},
+
+      {:arc, "~> 0.8"},
+      {:arc_ecto, "~> 0.7"},
 
       {:ueberauth, "~> 0.5"},
       {:oauth2, "~> 0.8", override: true},

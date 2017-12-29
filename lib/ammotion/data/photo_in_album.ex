@@ -15,7 +15,7 @@ defmodule Ammo.PhotoInAlbum do
   end
 
   @doc false
-  def changeset(%PhotoInAlbum{} = photo_in_album, attrs) do
+  def changeset(%PhotoInAlbum{} = photo_in_album, attrs \\ %{}) do
     photo_in_album
     |> cast(attrs, [])
   end
