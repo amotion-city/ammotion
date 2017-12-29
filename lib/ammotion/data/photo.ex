@@ -5,11 +5,13 @@ defmodule Ammo.Photo do
 
   use Ecto.Schema
   use Arc.Ecto.Schema
+  @default :en
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
   schema "photos" do
     field :image, Ammo.PhotoUploader.Type
+    field :caption, :map
 
     field :sha, :string
     field :taken_at, :naive_datetime
@@ -31,6 +33,7 @@ defmodule Ammo.Photo do
     |> cast_attachments(attrs, [:image])
     # |> validate_required(~w|user_id|a) # FIXME
     |> validate_path()
+    |> revalidate_caption()
     |> revalidate_sha()
     |> revalidate_gps()
     |> put_assoc(:albums, attrs[:albums] || []) # FIXME
@@ -72,6 +75,13 @@ defmodule Ammo.Photo do
         path_error(changes, :invalid_image_path, "Unrecognizable path given: #{inspect(invalid)}.")
     end
   end
+
+  defp revalidate_caption(%Ecto.Changeset{changes: %{caption: <<caption :: binary>>} = changes} = changeset),
+    do: revalidate_caption(%Ecto.Changeset{changeset | changes: %{changes | caption: %{@default => caption}}})
+  defp revalidate_caption(%Ecto.Changeset{changes: %{caption: %{@default => <<_ :: binary>>}}} = changeset),
+    do: changeset
+  defp revalidate_caption(%Ecto.Changeset{changes: %{} = changes} = changeset),
+    do: revalidate_caption(%Ecto.Changeset{changeset | changes: Map.put(changes, :caption, "")})
 
   defp sha(path) when is_binary(path) do
     path

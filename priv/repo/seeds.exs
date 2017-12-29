@@ -5,7 +5,10 @@
 # Inside the script, you can read and write to any of your
 # repositories directly:
 #
-#     Ammo.Repo.insert!(%Ammo.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+
+alias Ammo.Repo, as: R
+alias Ammo.{User,Photo,Album}
+
+R.insert!(%User{name: "Aleksei", email: "am@amotion.city"})
+Photo.new! %{user_id: R.one(User).id, caption: "Hello, world!", image: %Plug.Upload{filename: "1.jpg", path: "images/1.jpg"}}
+

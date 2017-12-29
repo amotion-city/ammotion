@@ -9,7 +9,7 @@ defmodule Ammo.Photo.Test do
 
   setup _context do
     Ecto.Adapters.SQL.Sandbox.mode(Ammo.Repo, {:shared, self()})
-    [user: Ammo.User.new!(name: "Aleksei", email: "am@amotion.city")]
+    [user: Ammo.User.new!(name: "Aleksei", email: "no-reply@amotion.city")]
   end
 
   test "Photo.new!/1", %{user: user} do

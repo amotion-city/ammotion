@@ -5,6 +5,7 @@ defmodule Ammo.Repo.Migrations.CreatePhotos do
     create table(:photos, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :image, :map
+      add :caption, :map
       add :sha, :string
       add :latlon, :geometry
       add :taken_at, :utc_datetime

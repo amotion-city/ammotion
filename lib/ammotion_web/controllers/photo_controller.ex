@@ -14,7 +14,7 @@ defmodule AmmoWeb.PhotoController do
   end
 
   def create(conn, %{"photo" => photo_params}) do
-    IO.inspect photo_params
+    IO.inspect photo_params, label: "[photo_controller.ex:17]"
     changeset = Photo.changeset(%Photo{}, photo_params)
     case Repo.insert(changeset) do
       {:ok, _photo} ->
@@ -23,7 +23,7 @@ defmodule AmmoWeb.PhotoController do
         |> redirect(to: photo_path(conn, :index))
       {:error, changeset} ->
         conn
-        |> put_flash(:error, "Something went wrong: #{inspect changeset}")
+        |> put_flash(:error, "Something went wrong: #{inspect(changeset)}")
         |> render("new.html", changeset: changeset)
     end
   end

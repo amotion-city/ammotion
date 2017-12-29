@@ -15,14 +15,23 @@ defmodule Ammo.PhotoUploader do
   end
 
   # Define a thumbnail transformation:
-  def transform(:thumb, _) do
-    {:convert, "-strip -thumbnail 250x250^ -gravity center -extent 250x250 -format png", :png}
+  def transform(:thumb, _data) do
+    {:convert, "-strip -thumbnail 250x250^ -gravity center -extent 250x250 -format jpg", :jpg}
   end
 
-  # Override the persisted filenames:
-  # def filename(version, _) do
-  #   version
-  # end
+  def filename(version, {%Arc.File{file_name: original_file_name}, _}) do
+    original_file_name =
+      original_file_name
+      |> String.split(".")
+      |> Enum.slice(0..-2)
+      |> Enum.join(".")
+    suffix =
+      case version do
+        :original -> ""
+        _ -> "-#{version}"
+      end
+    original_file_name <> suffix
+  end
 
   # Override the storage directory:
   # def storage_dir(version, {file, scope}) do

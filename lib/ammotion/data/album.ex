@@ -41,7 +41,11 @@ defmodule Ammo.Album do
         owner: album.user.name,
         photos:
           Enum.map(album.photos, fn photo ->
-            {lat, lon} = photo.latlon.coordinates
+            {lat, lon} =
+              case photo.latlon do
+                nil -> {nil, nil}
+                latlon -> latlon.coordinates
+              end
             %{
               coords: %{lat: lat, lon: lon},
               taken_at: photo.taken_at,
