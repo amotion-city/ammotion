@@ -32,7 +32,7 @@ defmodule AmmoWeb.AuthController do
         conn
         |> put_flash(:info, "Successfully authenticated.")
         |> put_session(:current_user, user)
-        |> redirect(to: "/")
+        |> redirect(to: "/photos")
       {:error, reason} ->
         conn
         |> put_flash(:error, reason)

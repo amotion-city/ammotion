@@ -16,6 +16,6 @@ case :application.get_key(:ammotion, :modules) do
     )
 
     alias Ammo.{Repo,User,Photo,Album}
-    [am] = Repo.all User
+    [am|_] = Repo.all User
   _ -> IO.puts("[NB] starting an `iex` alone; application :ammotion is not loaded!")
 end

@@ -33,7 +33,7 @@ defmodule Ammo.UserAccount do
       Repo.one(from ua in UserAccount, where: ua.user_id == ^user.id) ||
       (%UserAccount{}
         |> changeset(%{type: to_string(type), raw_info: Map.from_struct(info)})
-        |> Repo.insert())
+        |> Repo.insert!())
 
     %{user: user, account: account}
   end
