@@ -1,3 +1,8 @@
+@import "../static/_scss/fontawesome";
+@import "../static/_scss/fontawesome/fa-brands";
+@import "../static/_scss/fontawesome/fa-solid";
+@import "../static/_scss/fontawesome/fa-regular";
+
 @import "../static/_scss/nord";
 @import "../static/_scss/materialize";
 
@@ -10,17 +15,19 @@ body {
 
 /* Space out content a bit */
 body, form, ul, table {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin: 0px; padding: 0;
 }
 
 /* Phoenix flash messages */
 .alert:empty { display: none; }
 
+nav { background-color: $secondary-color; }
+
 /* Custom page header */
 .header {
   border-bottom: 1px solid #e5e5e5;
 }
+
 .logo {
   width: 519px;
   height: 71px;
@@ -28,6 +35,33 @@ body, form, ul, table {
   margin-bottom: 1em;
   background-image: url("/images/phoenix.png");
   background-size: 519px 71px;
+}
+
+div.identity {
+  padding-right: 10px;
+  float: right;
+}
+div.identity > a {
+  margin-left: 10px;
+}
+
+div.loggeduser > img {
+  display: inline-block;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  height: 40px;
+  line-height: 40px;
+  padding: 0;
+  background-color: #B48EAD;
+  border-radius: 50%;
+  transition: .3s;
+  cursor: pointer;
+  vertical-align: middle;
+}
+div.loggeduser > button {
+  box-shadow: none !important;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */

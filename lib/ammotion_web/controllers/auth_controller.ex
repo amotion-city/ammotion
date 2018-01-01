@@ -28,6 +28,7 @@ defmodule AmmoWeb.AuthController do
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
     case AmmoWeb.UserFromAuth.find_or_create(auth) do
       {:ok, user} ->
+        IO.inspect(user, label: "☆☆☆")
         conn
         |> put_flash(:info, "Successfully authenticated.")
         |> put_session(:current_user, user)

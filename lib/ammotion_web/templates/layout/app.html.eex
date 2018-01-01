@@ -8,6 +8,7 @@
     <meta name="author" content="">
 
     <title>Hello Ammo!</title>
+    <!-- link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" -->
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
@@ -18,7 +19,43 @@
           <ul class="nav nav-pills pull-right">
             <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
           </ul>
+
+          <div class="identity">
+            <%= if @current_user do %>
+              <div class="loggeduser">
+                <img alt="<%= @current_user.name %>"
+                    class="circle responsive-img"
+                    src="<%= @current_user.avatar %>"/>
+                <%= button "🚪", to: auth_path(@conn, :delete), method: :delete, class: "btn btn-floating btn-danger" %>
+              </div>
+            <% else %>
+              <a class="btn btn-floating pulse" href="/auth/github">
+                <i class="fab fa-github"></i>
+              </a>
+
+              <a class="btn btn-floating pulse" href="/auth/facebook">
+                <i class="fab fa-facebook"></i>
+              </a>
+
+              <a class="btn btn-floating pulse" href="/auth/google">
+                <i class="fab fa-google"></i>
+              </a>
+
+              <a class="btn btn-floating pulse" href="/auth/slack">
+                <i class="fab fa-slack"></i>
+              </a>
+
+              <a class="btn btn-floating pulse" href="/auth/twitter">
+                <i class="fab fa-twitter"></i>
+              </a>
+
+              <a class="btn btn-floating pulse" href="/auth/identity">
+                <i class="fas fa-user"></i>
+              </a>
+            <% end %>
+          </div>
         </nav>
+
         <span class="logo"></span>
       </header>
 
