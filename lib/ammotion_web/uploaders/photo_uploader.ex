@@ -19,7 +19,7 @@ defmodule Ammo.PhotoUploader do
     {:convert, "-strip -thumbnail 250x250^ -gravity center -extent 250x250 -format jpg", :jpg}
   end
 
-  def filename(version, {%Arc.File{file_name: original_file_name}, _}) do
+  def filename(version, {%{file_name: original_file_name}, _}) do
     original_file_name =
       original_file_name
       |> String.split(".")

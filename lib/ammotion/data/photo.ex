@@ -138,7 +138,7 @@ defmodule Ammo.Photo do
 
   defp gps(path) when is_binary(path) do
     with {:ok, info} <- Exexif.exif_from_jpeg_file(path) do
-      case {ts(info.gps), latlon(info.gps)} do
+      case {ts(info[:gps]), latlon(info[:gps])} do
         {nil, nil} ->
           %{}
         {nil, latlon} ->
