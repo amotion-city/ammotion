@@ -6,6 +6,7 @@ defmodule AmmoWeb.UserFromAuth do
   require Poison
 
   alias Ueberauth.Auth
+  alias Ammo.{User,UserAccount}
 
   def find_or_create(%Auth{provider: :identity} = auth) do
     case validate_pass(auth.credentials) do
@@ -19,6 +20,8 @@ defmodule AmmoWeb.UserFromAuth do
   def find_or_create(%Auth{} = auth) do
     {:ok, basic_info(auth)}
   end
+
+  ##############################################################################
 
   # github does it this way
   defp avatar_from_auth( %{info: %{urls: %{avatar_url: image}} }), do: image
@@ -34,7 +37,12 @@ defmodule AmmoWeb.UserFromAuth do
   end
 
   defp basic_info(auth) do
-    %{id: auth.uid, name: name_from_auth(auth), avatar: avatar_from_auth(auth)}
+    auth
+    |> UserAccount.lookup()
+    |> Map.merge(%{
+         name: name_from_auth(auth),
+         avatar: avatar_from_auth(auth)
+       })
   end
 
   defp name_from_auth(auth) do

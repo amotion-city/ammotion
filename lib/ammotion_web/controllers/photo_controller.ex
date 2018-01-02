@@ -3,14 +3,15 @@ defmodule AmmoWeb.PhotoController do
   alias Ammo.{Photo,Repo}
 
   def index(conn, _) do
+    user = get_session(conn, :current_user) # FIXME
     images = Repo.all(Photo)
-    render(conn, "index.html", images: images)
+    render(conn, "index.html", images: images, current_user: user)
   end
 
   def new(conn, _) do
-    # user = get_session(conn, :current_user) # FIXME
-    changeset = Photo.changeset(%Photo{}, %{user_id: "3c07ecac-ce73-4f41-a948-108604125f10"})
-    render(conn, "new.html", changeset: changeset)
+    user = get_session(conn, :current_user) # FIXME
+    changeset = Photo.changeset(%Photo{}, %{user_id: user.user.id})
+    render(conn, "new.html", changeset: changeset, current_user: user)
   end
 
   def create(conn, %{"photo" => photo_params}) do
