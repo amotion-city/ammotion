@@ -56,8 +56,18 @@ body, form, ul, table {
 
 nav { background-color: $secondary-color; }
 
+.logo {
+  width: 224px;
+  height: 70px;
+  display: inline-block;
+  margin-bottom: 1em;
+  background-image: url("/images/logo.png");
+  background-size: 224px 70px;
+}
+
 div.identity {
   padding-right: 10px;
+  line-height: 56px;
   float: right;
 }
 div.identity > a {
