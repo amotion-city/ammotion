@@ -10,7 +10,12 @@ defmodule AmmoWeb.Api.V1.AlbumsController do
   alias Ammo.{Repo,Album}
 
   def index(conn, _params) do
-    json conn, %{albums: Repo.all(from a in Album, select: a.id)}
+    # IO.inspect album_path(conn, :index)
+    urls =
+      (from a in Album, select: a.id)
+      |> Repo.all()
+      |> Enum.map(& Enum.join([AmmoWeb.Endpoint.url, api_v1_albums_path(conn, :index), &1], "/"))
+    json conn, %{albums: urls}
   end
 
   def show(conn, %{"id" => id} = _params) do
