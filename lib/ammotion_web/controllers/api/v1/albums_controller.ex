@@ -7,7 +7,7 @@ defmodule AmmoWeb.Api.V1.AlbumsController do
   require Logger
 
   # alias AmmoWeb.Endpoint
-  alias Ammo.{Repo,Photo,Album}
+  alias Ammo.{Repo,Album}
 
   def index(conn, _params) do
     json conn, %{albums: Repo.all(from a in Album, select: a.id)}

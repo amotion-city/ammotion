@@ -49,6 +49,8 @@ defmodule Ammo.Album do
             %{
               coords: %{lat: lat, lon: lon},
               taken_at: photo.taken_at,
+              caption: photo.caption,
+              url: AmmoWeb.Endpoint.url <> Ammo.PhotoUploader.url({photo.image, photo}),
               author: photo.user.name
             }
           end)
